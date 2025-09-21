@@ -10,7 +10,6 @@
       font-family: "Helvetica Neue", Arial, sans-serif;
       background: linear-gradient(135deg, #f0f4ff, #e8f7f1);
       color: #222;
-      display: block; /* Kein flex mehr */
     }
 
     /* Banner oben */
@@ -20,82 +19,80 @@
       background: url("banner.jpeg") center/cover no-repeat;
     }
 
-    /* Card zentrieren */
-    .card {
-      background: white;
-      padding: 2.5rem;
-      border-radius: 16px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-      text-align: center;
-      max-width: 420px;
-      width: 90%;
-      margin: -100px auto 2rem auto; /* Überlappen leicht mit Banner */
-      position: relative;
-      z-index: 1;
-      animation: fadeIn 1s ease-in-out;
+    /* Profilbereich unter Banner */
+    .profile {
+      max-width: 900px;
+      margin: 2rem auto;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      padding: 1rem 2rem;
     }
 
+    /* Profilbild links */
     .profile-pic {
-      width: 120px;
-      height: 120px;
+      width: 140px;
+      height: 140px;
       border-radius: 50%;
       object-fit: cover;
-      margin-bottom: 1rem;
       border: 3px solid #0077cc;
     }
 
-    h1 {
-      margin: 0.5rem 0;
+    /* Text rechts */
+    .profile-info h1 {
+      margin: 0 0 0.5rem 0;
       font-size: 1.8rem;
+      color: #222;
     }
 
-    p {
-      font-size: 1rem;
-      line-height: 1.5;
+    .profile-info p {
+      margin: 0 0 1rem 0;
       color: #555;
+      font-size: 1rem;
+      line-height: 1.4;
     }
 
-    a {
+    /* Links */
+    .links a {
       display: inline-block;
-      margin-top: 1.5rem;
-      padding: 0.8rem 1.4rem;
+      margin-right: 0.8rem;
+      padding: 0.6rem 1rem;
       background: #0077cc;
       color: white;
       text-decoration: none;
-      border-radius: 10px;
+      border-radius: 8px;
+      font-size: 0.9rem;
       font-weight: bold;
       transition: transform 0.2s ease, background 0.3s ease;
     }
 
-    a:hover {
+    .links a:hover {
       background: #005fa3;
       transform: scale(1.05);
-    }
-
-    @keyframes fadeIn {
-      from { 
-        opacity: 0; 
-        transform: translateY(20px); 
-      }
-      to { 
-        opacity: 1; 
-        transform: translateY(0); 
-      }
     }
   </style>
 </head>
 <body>
-  <!-- Banner oben, ohne Text -->
+  <!-- Banner oben -->
   <header class="banner"></header>
 
-  <div class="card">
+  <!-- Profilbereich -->
+  <section class="profile">
     <img src="profilepic.jpg" alt="Profilbild" class="profile-pic">
-    <h1>Michael Stollenwerk</h1>
-    <p>
-      Willkommen auf meiner persönlichen Seite.<br>
-      Hier teile ich Gedanken, Analysen und Ideen.
-    </p>
-    <a href="https://www.linkedin.com/in/michael-stollenwerk-0642338a/" target="_blank">LinkedIn</a>
-  </div>
+
+    <div class="profile-info">
+      <h1>Michael Stollenwerk</h1>
+      <p>
+        Willkommen auf meiner persönlichen Seite.<br>
+        Hier teile ich Gedanken, Analysen und Ideen.
+      </p>
+      <div class="links">
+        <a href="https://www.linkedin.com/in/michael-stollenwerk-0642338a/" target="_blank">LinkedIn</a>
+        <a href="https://x.com" target="_blank">X</a>
+        <a href="https://dein-substack.substack.com" target="_blank">Substack</a>
+        <a href="https://facebook.com" target="_blank">Facebook</a>
+      </div>
+    </div>
+  </section>
 </body>
 </html>
