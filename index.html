@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[Dein Name] – Persönliche Seite</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f0f4ff, #e8f7f1);
+      color: #222;
+    }
+
+    .card {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .profile-pic {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 1rem;
+      border: 3px solid #0077cc;
+    }
+
+    h1 {
+      margin: 0.5rem 0;
+      font-size: 1.8rem;
+    }
+
+    p {
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #555;
+    }
+
+    a {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.8rem 1.4rem;
+      background: #0077cc;
+      color: white;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: bold;
+      transition: transform 0.2s ease, background 0.3s ease;
+    }
+
+    a:hover {
+      background: #005fa3;
+      transform: scale(1.05);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <!-- Profilbild – ersetzen durch dein eigenes -->
+    <img src="https://via.placeholder.com/120" alt="Profilbild" class="profile-pic">
+    <h1>Hallo, ich bin [Dein Name]</h1>
+    <p>
+      Willkommen auf meiner persönlichen Seite.<br>
+      Hier teile ich Gedanken, Analysen und Ideen.
+    </p>
+    <a href="https://dein-substack.substack.com" target="_blank">📖 Zu meinem Substack</a>
+  </div>
+</body>
+</html>
