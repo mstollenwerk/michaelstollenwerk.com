@@ -12,11 +12,11 @@
       color: #222;
     }
 
-.banner img {
-  display: block;        /* removes bottom whitespace */
-  width: 100%;           /* always full width */
-  height: auto;          /* keeps original ratio */
-}
+    .banner img {
+      display: block;        /* removes bottom whitespace */
+      width: 100%;           /* always full width */
+      height: auto;          /* keeps original ratio */
+    }
 
     /* Profilbereich unter Banner */
     .profile {
@@ -69,13 +69,51 @@
       background: #005fa3;
       transform: scale(1.05);
     }
+
+    /* Publications section */
+    .publications {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem 2rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .publications h2 {
+      margin-top: 0;
+      font-size: 1.5rem;
+      color: #0077cc;
+      border-bottom: 2px solid #0077cc;
+      padding-bottom: 0.5rem;
+    }
+
+    .publications ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .publications li {
+      margin: 0.8rem 0;
+      font-size: 1rem;
+    }
+
+    .publications li a {
+      color: #0077cc;
+      text-decoration: none;
+    }
+
+    .publications li a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
   <!-- Banner oben -->
-<header class="banner">
-  <img src="banner.jpeg" alt="Banner">
-</header>
+  <header class="banner">
+    <img src="banner.jpeg" alt="Banner">
+  </header>
 
   <!-- Profilbereich -->
   <section class="profile">
@@ -94,6 +132,16 @@
         <a href="https://facebook.com" target="_blank">Facebook</a>
       </div>
     </div>
+  </section>
+
+  <!-- Publications section -->
+  <section class="publications">
+    <h2>Publications</h2>
+    <ul>
+      <li><a href="#">Titel der Publikation 1</a> – Journal / Jahr</li>
+      <li><a href="#">Titel der Publikation 2</a> – Journal / Jahr</li>
+      <li><a href="#">Substack: Beispielartikel</a></li>
+    </ul>
   </section>
 </body>
 </html>
