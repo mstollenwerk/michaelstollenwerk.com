@@ -12,12 +12,11 @@
       color: #222;
     }
 
-    /* Banner oben */
-    .banner {
-      width: 100%;
-      height: auto; /* Höhe des Banners */
-      background: url("banner.jpeg") center/cover no-repeat;
-    }
+.banner img {
+  display: block;        /* removes bottom whitespace */
+  width: 100%;           /* always full width */
+  height: auto;          /* keeps original ratio */
+}
 
     /* Profilbereich unter Banner */
     .profile {
@@ -74,7 +73,9 @@
 </head>
 <body>
   <!-- Banner oben -->
-  <header class="banner"></header>
+<header class="banner">
+  <img src="banner.jpeg" alt="Banner">
+</header>
 
   <!-- Profilbereich -->
   <section class="profile">
