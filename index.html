@@ -15,7 +15,17 @@
     .banner img {
       display: block;
       width: 100%;
-      height: auto;
+      height: auto; /* Standard: behält Seitenverhältnis */
+    }
+    
+    /* Ab Desktop-Breite Banner kleiner machen */
+    @media (min-width: 768px) {
+      .banner img {
+        max-height: 300px;  /* Höhe beschränken */
+        width: auto;        /* Breite passt sich an */
+        margin: 0 auto;     /* zentriert falls schmaler */
+        display: block;
+      }
     }
 
     /* Profilbereich unter Banner */
