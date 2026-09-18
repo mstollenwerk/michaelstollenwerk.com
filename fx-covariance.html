@@ -7,91 +7,82 @@
 <link rel="icon" href="/icon.png" type="image/png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --page:           #0a0908;
-    --surface:        #15120f;
-    --surface-raised: #1e1916;
-    --ink:            #f3ece4;
-    --ink-secondary:  #b6a99e;
-    --muted:          #756a63;
-    --border:         rgba(255,255,255,0.10);
-    --border-strong:  rgba(255,255,255,0.22);
+    --page:           #ffffff;
+    --surface:        #fafaf8;
+    --ink:            #1a1a1a;
+    --ink-secondary:  #4a4a48;
+    --muted:          #8a8783;
+    --border:         #e4e2dd;
+    --border-strong:  #c9c6c0;
 
-    --brand:          #8a2f42;   /* the site's own wine-red, used only for the exit link */
-    --brand-hover:    #a83b52;
+    --accent:         #5A1E2A;
+    --accent-ink:     #ffffff;
+    --accent-wash:    rgba(90,30,42,0.06);
 
-    --accent:         #e0a13a;   /* this page's own accent - amber, distinct from the brand link and the data poles */
-    --accent-ink:     #14100a;
-    --accent-wash:    rgba(224,161,58,0.14);
+    --diverging-neg:  #2a78d6;
+    --diverging-mid:  #f0efec;
+    --diverging-pos:  #e34948;
 
-    --diverging-neg:  #3987e5;
-    --diverging-mid:  #2b2724;
-    --diverging-pos:  #e6595f;
-
-    --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --sans:  "Helvetica Neue", Arial, sans-serif;
+    --mono:  "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   }
 
   * { box-sizing: border-box; }
-  html, body {
-    margin: 0;
-    background: var(--page);
-    color: var(--ink);
-    font-family: var(--mono);
-  }
-  body { font-size: 14px; line-height: 1.55; }
-  ::selection { background: var(--accent-wash); }
+  html, body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--sans); }
+  body { font-size: 15px; line-height: 1.6; }
   a { color: inherit; }
 
-  .container { max-width: 1180px; margin: 0 auto; padding: 2.5rem 1.75rem 4rem; }
+  .container { max-width: 1180px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
 
   .back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4em;
-    margin-bottom: 2rem;
-    padding: 0.55rem 0.9rem;
-    background: transparent;
-    border: 1px solid var(--brand);
-    color: var(--brand-hover);
+    display: inline-block;
+    margin-bottom: 1.75rem;
+    padding: 0.6rem 1rem;
+    background: var(--accent);
+    color: white;
     text-decoration: none;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    transition: background 0.15s ease, color 0.15s ease;
+    font-size: 0.85rem;
+    font-weight: bold;
+    transition: background 0.2s ease;
   }
-  .back-link:hover { background: var(--brand); color: #fff; }
+  .back-link:hover { background: #3E141D; }
 
   h1 {
-    font-size: 2.1rem;
-    font-weight: 800;
-    letter-spacing: -0.01em;
-    margin: 0 0 0.9rem;
-    line-height: 1.1;
+    font-family: var(--serif);
+    font-size: 2.15rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 0.15rem;
+    line-height: 1.2;
   }
-  h1 .dim { color: var(--muted); font-weight: 500; }
+  .kicker {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 0.6rem;
+  }
+  h1 + .rule { border: none; border-top: 1px solid var(--ink); margin: 0 0 1.25rem; width: 3.5rem; }
 
   .description {
-    font-size: 0.92rem;
-    line-height: 1.65;
+    font-family: var(--serif);
+    font-size: 1.02rem;
+    line-height: 1.7;
     color: var(--ink-secondary);
-    max-width: 68ch;
+    max-width: 66ch;
     margin: 0 0 2.25rem;
-    padding-left: 1rem;
-    border-left: 2px solid var(--accent);
   }
+  .description em { color: var(--ink); font-style: italic; }
 
-  .plot-wrapper {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 1.5rem 1.5rem 1.75rem;
-  }
+  .plot-wrapper { background: var(--page); border: 1px solid var(--border); padding: 1.75rem 1.75rem 1.5rem; }
 
-  * { box-sizing: border-box; }
   button {
-    font-family: inherit;
+    font-family: var(--sans);
     font-size: inherit;
     color: inherit;
     background: none;
@@ -106,137 +97,96 @@
     font-family: var(--mono);
     font-size: 12px;
     color: var(--ink);
-    background: var(--page);
+    background: var(--surface);
     border: 1px solid var(--border-strong);
     padding: 5px 8px;
   }
-  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.8); }
 
   .fx-meta {
-    display: flex;
-    justify-content: flex-end;
-    align-items: baseline;
-    gap: 0.4em;
-    margin: -0.3rem 0 1.1rem;
-    font-size: 11px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--muted);
+    display: flex; justify-content: flex-end; align-items: baseline; gap: 0.4em;
+    margin: -0.6rem 0 1.2rem; font-family: var(--mono); font-size: 11px; color: var(--muted);
   }
-  .fx-meta .n { color: var(--accent); font-weight: 800; font-size: 19px; letter-spacing: 0; text-transform: none; }
+  .fx-meta .n { color: var(--accent); font-weight: 700; font-size: 17px; }
 
-  .fx-controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
-    margin-bottom: 18px;
-  }
+  .fx-controls { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
   .segmented { display: inline-flex; border: 1px solid var(--border-strong); }
-  .segmented button {
-    padding: 7px 14px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--ink-secondary);
-  }
+  .segmented button { padding: 7px 14px; font-size: 12.5px; font-weight: 500; color: var(--ink-secondary); }
   .segmented button + button { border-left: 1px solid var(--border-strong); }
   .segmented button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
 
   .datenav { display: flex; align-items: center; gap: 8px; }
   .datenav button.step {
-    width: 28px; height: 28px;
-    display: grid; place-items: center;
-    border: 1px solid var(--border-strong);
-    background: transparent;
-    font-size: 14px;
-    color: var(--ink-secondary);
+    width: 28px; height: 28px; display: grid; place-items: center;
+    border: 1px solid var(--border-strong); background: var(--surface); font-size: 14px; color: var(--ink-secondary);
   }
-  .datenav button.step:hover { border-color: var(--accent); color: var(--accent); }
-  .date-label { font-size: 15px; font-weight: 700; min-width: 15ch; text-align: center; }
-  .date-sub {
-    font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
-    color: var(--muted); text-align: center; margin-top: 1px;
-  }
+  .datenav button.step:hover { background: var(--accent-wash); border-color: var(--accent); }
+  .date-label { font-family: var(--serif); font-size: 15px; font-weight: 600; min-width: 15ch; text-align: center; }
+  .date-sub { font-family: var(--mono); font-size: 10px; letter-spacing: 0.03em; color: var(--muted); text-align: center; margin-top: 1px; }
 
   .fx-timeline { position: relative; height: 24px; margin: 4px 0 5px; border-bottom: 1px solid var(--border); cursor: pointer; }
   .fx-timeline .track { position: absolute; inset: 0; display: flex; align-items: flex-end; }
   .fx-timeline .tick { flex: 1 1 auto; height: 6px; background: var(--border-strong); margin-right: 1px; }
   .fx-timeline .tick.current { background: var(--accent); height: 14px; }
   .fx-timeline .tick:hover { background: var(--diverging-pos); }
-  .fx-timeline-hint { font-size: 10.5px; color: var(--muted); margin: 0 0 22px; letter-spacing: 0.02em; }
+  .fx-timeline-hint { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin: 0 0 24px; }
 
-  .fx-board { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; }
+  .fx-board { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px; }
   @media (max-width: 760px) { .fx-board { grid-template-columns: 1fr; } }
 
-  .fx-panel {
-    background: var(--page);
-    border: 1px solid var(--border);
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-  }
-  .fx-panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .fx-panel { display: flex; flex-direction: column; }
+  .fx-panel-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
   .fx-panel h2 {
-    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em;
-    color: var(--muted); margin: 0;
+    font-family: var(--serif); font-style: italic; font-size: 13.5px; font-weight: 500;
+    color: var(--ink-secondary); margin: 0;
   }
-  .fx-clear {
-    font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase;
-    color: var(--accent); text-decoration: underline; text-underline-offset: 2px;
-  }
+  .fx-caption { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+  .fx-clear { font-family: var(--mono); font-size: 10px; letter-spacing: 0.03em; text-transform: uppercase; color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
 
   .matrix-scroll { overflow-x: auto; }
   table.fx-matrix { border-collapse: collapse; width: 100%; table-layout: fixed; }
   table.fx-matrix th, table.fx-matrix td { text-align: center; padding: 0; }
-  table.fx-matrix th { font-size: 10.5px; font-weight: 700; color: var(--ink-secondary); padding: 5px 2px; }
+  table.fx-matrix th { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--ink-secondary); padding: 6px 2px; }
   table.fx-matrix td.cell { position: relative; height: 47px; min-width: 47px; cursor: pointer; }
   table.fx-matrix td.cell .fill {
     position: absolute; inset: 2px;
     display: grid; place-items: center;
-    font-size: 12px; font-weight: 700;
+    font-family: var(--mono); font-size: 12px; font-weight: 600;
     transition: transform 100ms ease;
   }
-  table.fx-matrix td.cell.diag .fill { font-weight: 800; }
-  table.fx-matrix td.cell:hover .fill {
-    transform: scale(1.08);
-    box-shadow: 0 0 0 2px var(--page), 0 0 0 3px var(--border-strong);
-  }
-  table.fx-matrix td.cell.selected .fill {
-    box-shadow: 0 0 0 2px var(--page), 0 0 0 3px var(--sel-color, var(--accent));
-  }
+  table.fx-matrix td.cell.diag .fill { font-weight: 700; }
+  table.fx-matrix td.cell:hover .fill { transform: scale(1.07); box-shadow: 0 0 0 2px var(--page), 0 0 0 3px var(--border-strong); }
+  table.fx-matrix td.cell.selected .fill { box-shadow: 0 0 0 2px var(--page), 0 0 0 3px var(--sel-color, var(--accent)); }
 
-  .fx-legend { display: flex; align-items: center; gap: 10px; margin-top: 13px; font-size: 10px; color: var(--muted); }
+  .fx-legend { display: flex; align-items: center; gap: 10px; margin-top: 14px; font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
   .fx-legend .bar { flex: 1; height: 6px; background: linear-gradient(90deg, var(--diverging-neg), var(--diverging-mid), var(--diverging-pos)); }
 
-  .fx-readouts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
-  .readout-row { display: grid; grid-template-columns: 10px 1fr auto auto; align-items: center; gap: 8px; }
-  .readout-row .swatch { width: 10px; height: 10px; border-radius: 50%; }
+  .fx-readouts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .readout-row { display: grid; grid-template-columns: 9px 1fr auto auto; align-items: center; gap: 8px; }
+  .readout-row .swatch { width: 9px; height: 9px; border-radius: 50%; }
   .readout-row.preview .swatch { border-radius: 0; border: 1px dashed var(--muted); background: transparent !important; }
-  .readout-row .pair { font-size: 12.5px; font-weight: 600; }
+  .readout-row .pair { font-size: 13px; font-weight: 600; }
   .readout-row .pair .sep { color: var(--muted); font-weight: 400; padding: 0 2px; }
   .readout-row.preview .pair { color: var(--ink-secondary); font-weight: 400; font-style: italic; }
-  .readout-row .val { font-size: 13px; font-weight: 700; text-align: right; }
-  .readout-row .pctl { font-size: 10px; color: var(--muted); text-align: right; min-width: 4.5ch; }
+  .readout-row .val { font-family: var(--mono); font-size: 12.5px; font-weight: 600; text-align: right; }
+  .readout-row .pctl { font-family: var(--mono); font-size: 10px; color: var(--muted); text-align: right; min-width: 4.5ch; }
 
   .hist-chart-wrap { flex: 1; min-height: 140px; display: flex; }
   svg.hist-chart { width: 100%; height: 100%; overflow: visible; }
   .hist-empty {
     flex: 1; display: flex; align-items: center; justify-content: center;
-    color: var(--muted); font-size: 12px; text-align: center; padding: 0 20px;
+    color: var(--muted); font-family: var(--serif); font-style: italic; font-size: 13px; text-align: center; padding: 0 24px;
   }
 
-  .fx-method { margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 11.5px; color: var(--ink-secondary); line-height: 1.7; }
-  .fx-method h3 { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 8px; font-weight: 700; }
+  .fx-method { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--ink-secondary); line-height: 1.7; }
+  .fx-method h3 { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin: 0 0 8px; font-weight: 600; }
   .fx-method p { margin: 0 0 8px; max-width: 78ch; }
-  .fx-method code { font-size: 11px; background: var(--page); border: 1px solid var(--border); padding: 1px 5px; }
+  .fx-method code { font-family: var(--mono); font-size: 11.5px; background: var(--surface); border: 1px solid var(--border); padding: 1px 5px; }
 
   .fx-tooltip {
     position: fixed; pointer-events: none;
-    background: var(--surface-raised); border: 1px solid var(--border-strong);
-    padding: 6px 9px; font-size: 11px;
+    background: #ffffff; border: 1px solid var(--border-strong);
+    padding: 6px 9px; font-family: var(--mono); font-size: 11px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.10);
     z-index: 50; opacity: 0; transition: opacity 80ms ease; white-space: nowrap;
   }
   .fx-tooltip.show { opacity: 1; }
@@ -247,16 +197,18 @@
 </head>
 <body>
   <div class="container">
-    <a href="index.html" class="back-link">&larr; home</a>
-    <h1>FX Realized <span class="dim">/</span> Covariance</h1>
+    <a href="index.html" class="back-link">&larr; Back to Home</a>
+    <p class="kicker">Realized Covariance &middot; FX</p>
+    <h1>Realized Covariance of Major USD Pairs</h1>
+    <hr class="rule" />
     <div class="description">
       <p>Daily bias-adjusted realized covariance across seven major USD pairs, from 5-minute and 1-minute log
-        returns (Zhang, Mykland &amp; A&iuml;t-Sahalia, 2005). Click matrix cells to compare their history &mdash;
-        select more than one at once.</p>
+        returns (Zhang, Mykland &amp; A&iuml;t-Sahalia, 2005). <em>Click one or more matrix cells to compare
+        their history.</em></p>
     </div>
 
     <div class="plot-wrapper">
-      <div class="fx-meta"><span class="n" id="dayCount">&mdash;</span> trading days</div>
+      <div class="fx-meta"><span class="n" id="dayCount">&mdash;</span>&nbsp;trading days</div>
 
       <div class="fx-controls">
         <div class="segmented" role="group" aria-label="Matrix view">
@@ -279,7 +231,7 @@
 
       <div class="fx-board">
         <section class="fx-panel">
-          <div class="fx-panel-head"><h2 id="matrixTitle">Correlation matrix</h2></div>
+          <div class="fx-panel-head"><h2 id="matrixTitle">Fig. 1 &mdash; Correlation matrix</h2></div>
           <div class="matrix-scroll">
             <table class="fx-matrix" id="matrixTable"></table>
           </div>
@@ -292,11 +244,11 @@
 
         <section class="fx-panel">
           <div class="fx-panel-head">
-            <h2>Cell history</h2>
+            <h2>Fig. 2 &mdash; Cell history</h2>
             <button type="button" class="fx-clear" id="clearSel" style="display:none;">clear</button>
           </div>
           <div id="historyBody" style="flex:1; display:flex; flex-direction:column; min-height:0;">
-            <div class="hist-empty">Click one or more matrix cells to compare their full history. Dashed = unconditional mean.</div>
+            <div class="hist-empty">Click one or more matrix cells to compare their full history.<br>Dashed line = unconditional mean.</div>
           </div>
         </section>
       </div>
@@ -328,8 +280,11 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
   "use strict";
 
   var DATA = RC_DATA;
-  var PALETTE = ["#e0a13a", "#3ecfc0", "#a78bfa", "#f2789f", "#7fc4f0"];
-  var PREVIEW_COLOR = "rgba(243,236,228,0.5)";
+  // validated categorical set (CVD + normal-vision separation checked), deliberately avoiding
+  // blue/red since those are already the correlation matrix's diverging poles - wine-red stays
+  // reserved for UI/brand chrome only, not reused here where it would blur with matrix cells
+  var PALETTE = ["#eb6834", "#1baf7a", "#4a3aa7", "#e87ba4", "#008300"];
+  var PREVIEW_COLOR = "rgba(26,26,26,0.45)";
 
   var state = {
     view: "corr",
@@ -365,7 +320,7 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
           b.setAttribute("aria-pressed", b === btn ? "true" : "false");
         });
         document.getElementById("matrixTitle").textContent =
-          state.view === "corr" ? "Correlation matrix" : "Volatility & co-volatility matrix";
+          state.view === "corr" ? "Fig. 1 — Correlation matrix" : "Fig. 1 — Volatility & co-volatility matrix";
         render();
       });
     });
@@ -406,7 +361,7 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
   function readableTextOn(rgbStr) {
     var m = rgbStr.match(/[\d.]+/g).map(Number);
     var lum = (0.299 * m[0] + 0.587 * m[1] + 0.114 * m[2]) / 255;
-    return lum > 0.58 ? "#14100a" : "#f5f4f0";
+    return lum > 0.58 ? "#1a1a1a" : "#f8f7f5";
   }
 
   var _volDomainCache = null;
@@ -433,6 +388,10 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
     return (v >= 0 ? "+" : "") + v.toFixed(1) + "%";
   }
   function prettyPair(sym) { return sym.slice(0, 3) + "/" + sym.slice(3); }
+  // every pair includes USD, so a naive first-3-letters header is "USD" for three of the seven
+  // columns (USD/JPY, USD/CAD, USD/CHF) and tells you nothing. Always show the OTHER currency -
+  // the one piece of the ticker that actually varies row to row / column to column.
+  function shortLabel(sym) { return sym.slice(0, 3) === "USD" ? sym.slice(3) : sym.slice(0, 3); }
   function keyOf(r, c) { return r + "," + c; }
 
   function buildTimeline() {
@@ -466,7 +425,7 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
     htr.appendChild(document.createElement("th"));
     symbols.forEach(function (s) {
       var th = document.createElement("th");
-      th.textContent = s.slice(0, 3);
+      th.textContent = shortLabel(s);
       htr.appendChild(th);
     });
     thead.appendChild(htr);
@@ -476,7 +435,7 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
     symbols.forEach(function (rowSym, r) {
       var tr = document.createElement("tr");
       var rowTh = document.createElement("th");
-      rowTh.textContent = rowSym.slice(0, 3);
+      rowTh.textContent = shortLabel(rowSym);
       tr.appendChild(rowTh);
       symbols.forEach(function (colSym, c) {
         var td = document.createElement("td");
@@ -594,7 +553,7 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
     var list = activeList();
 
     if (list.length === 0) {
-      host.innerHTML = '<div class="hist-empty">Click one or more matrix cells to compare their full history. Dashed = unconditional mean.</div>';
+      host.innerHTML = '<div class="hist-empty">Click one or more matrix cells to compare their full history.<br>Dashed line = unconditional mean.</div>';
       return;
     }
 
@@ -667,7 +626,7 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
     [hi - pad, lo + pad].forEach(function (v) {
       var t = document.createElementNS(svgNS, "text");
       t.setAttribute("x", 2); t.setAttribute("y", y(v) + 3);
-      t.setAttribute("font-family", "JetBrains Mono, monospace");
+      t.setAttribute("font-family", "IBM Plex Mono, monospace");
       t.setAttribute("font-size", "9.5");
       t.setAttribute("fill", cssVar("--muted"));
       t.textContent = state.view === "corr" ? v.toFixed(1) : v.toFixed(0);
@@ -680,10 +639,10 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
       var meanLine = document.createElementNS(svgNS, "line");
       meanLine.setAttribute("x1", padL); meanLine.setAttribute("x2", W - padR);
       meanLine.setAttribute("y1", my); meanLine.setAttribute("y2", my);
-      meanLine.setAttribute("stroke", entry.preview ? "rgba(243,236,228,0.3)" : entry.color);
+      meanLine.setAttribute("stroke", entry.color);
       meanLine.setAttribute("stroke-width", "1");
       meanLine.setAttribute("stroke-dasharray", "2,3");
-      meanLine.setAttribute("opacity", entry.preview ? "0.5" : "0.55");
+      meanLine.setAttribute("opacity", entry.preview ? "0.55" : "0.6");
       svg.appendChild(meanLine);
 
       var d = "";
@@ -695,10 +654,10 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
       path.setAttribute("d", d.trim());
       path.setAttribute("fill", "none");
       path.setAttribute("stroke", entry.color);
-      path.setAttribute("stroke-width", entry.preview ? "1.5" : "1.9");
+      path.setAttribute("stroke-width", entry.preview ? "1.4" : "1.8");
       if (entry.preview) path.setAttribute("stroke-dasharray", "5,3");
       path.setAttribute("stroke-linejoin", "round");
-      path.setAttribute("opacity", entry.preview ? "0.85" : "1");
+      path.setAttribute("opacity", entry.preview ? "0.9" : "1");
       svg.appendChild(path);
 
       var cx = x(state.dateIdx), cy = y(entry.nowVal);
