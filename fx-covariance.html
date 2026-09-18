@@ -203,8 +203,9 @@
     <hr class="rule" />
     <div class="description">
       <p>Daily bias-adjusted realized covariance across seven major USD pairs, from 5-minute and 1-minute log
-        returns (Zhang, Mykland &amp; A&iuml;t-Sahalia, 2005). <em>Click one or more matrix cells to compare
-        their history.</em></p>
+        returns (Zhang, Mykland &amp; A&iuml;t-Sahalia, 2005). Matrix shading reflects each cell's percentile
+        within its own history, not the raw value &mdash; so it reads as <em>unusual for that pair</em>, not
+        simply high or low in absolute terms. <em>Click one or more cells to compare their history.</em></p>
     </div>
 
     <div class="plot-wrapper">
@@ -364,24 +365,10 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
     return lum > 0.58 ? "#1a1a1a" : "#f8f7f5";
   }
 
-  var _volDomainCache = null;
-  function volDomain() {
-    if (_volDomainCache !== null) return _volDomainCache;
-    var maxAbs = 0;
-    DATA.dates.forEach(function (d) {
-      DATA.vol[d].forEach(function (row) {
-        row.forEach(function (v) { if (v !== null && Math.abs(v) > maxAbs) maxAbs = Math.abs(v); });
-      });
-    });
-    _volDomainCache = maxAbs;
-    return maxAbs;
-  }
-
   function currentMatrix() {
     var d = DATA.dates[state.dateIdx];
     return state.view === "corr" ? DATA.corr[d] : DATA.vol[d];
   }
-  function valueToT(v) { return state.view === "corr" ? v : v / volDomain(); }
   function fmtVal(v) {
     if (v === null || v === undefined || isNaN(v)) return "n/a";
     if (state.view === "corr") return (v >= 0 ? "+" : "") + v.toFixed(2);
@@ -463,10 +450,11 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
     state.hoverPreview = { r: r, c: c };
     var m = currentMatrix();
     var v = m[r][c];
+    var pctl = (v === null || v === undefined || isNaN(v)) ? null : percentileOf(seriesFor(r, c), state.dateIdx);
     var tip = document.getElementById("tooltip");
     tip.innerHTML =
       '<div class="t-pair">' + prettyPair(DATA.symbols[r]) + (r === c ? "" : " &middot; " + prettyPair(DATA.symbols[c])) + '</div>' +
-      '<div class="t-val">' + fmtVal(v) + '</div>';
+      '<div class="t-val">' + fmtVal(v) + (pctl === null ? "" : " &middot; p" + pctl) + '</div>';
     tip.classList.add("show");
     positionTooltip(evt);
     renderHistory();
@@ -500,18 +488,24 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
       var r = Number(td.dataset.r), c = Number(td.dataset.c);
       var v = m[r][c];
       var fill = td.firstChild;
-      var col = (v === null || v === undefined || isNaN(v)) ? cssVar("--border") : divergingColor(valueToT(v));
+      // color = this cell's percentile within its OWN history, not the raw value - so shading
+      // reads as "unusual for this pair" rather than conflating that with pairs that are just
+      // naturally more/less correlated (or more/less volatile) than others. The printed number
+      // stays the literal value; only the shading is relative.
+      var pctl = (v === null || v === undefined || isNaN(v)) ? null : percentileOf(seriesFor(r, c), state.dateIdx);
+      var col = pctl === null ? cssVar("--border") : divergingColor((pctl - 50) / 50);
       fill.style.background = col;
-      fill.style.color = (v === null || v === undefined || isNaN(v)) ? "var(--muted)" : readableTextOn(col);
+      fill.style.color = pctl === null ? "var(--muted)" : readableTextOn(col);
       fill.textContent = (v === null || v === undefined || isNaN(v)) ? String.fromCharCode(8212) :
         (state.view === "corr" ? v.toFixed(2) : v.toFixed(1));
+      td.title = pctl === null ? "" : ("own-history percentile: p" + pctl);
       var selColor = selKeys[keyOf(r, c)];
       td.classList.toggle("selected", !!selColor);
       td.style.setProperty("--sel-color", selColor || "");
     });
 
-    document.getElementById("legLow").textContent  = state.view === "corr" ? "-1.00" : ("-" + volDomain().toFixed(1) + "%");
-    document.getElementById("legHigh").textContent = state.view === "corr" ? "+1.00" : ("+" + volDomain().toFixed(1) + "%");
+    document.getElementById("legLow").textContent  = "p0 (own-history low)";
+    document.getElementById("legHigh").textContent = "p100 (own-history high)";
 
     document.getElementById("clearSel").style.display = state.selected.length ? "" : "none";
 
@@ -599,8 +593,10 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
     var W = 560, H = 300, padL = 34, padR = 8, padT = 10, padB = 8;
     var allVals = [];
     list.forEach(function (e) { allVals = allVals.concat(validVals(e.series)); allVals.push(e.mean); });
+    // dynamic range: scales to whatever's actually plotted (+ its mean line), not forced to
+    // the theoretical [-1,1] bound - a pair that only ever varies within e.g. 0.6-0.9 shouldn't
+    // have that range squashed into a sliver of a fixed-width axis
     var lo = Math.min.apply(null, allVals), hi = Math.max.apply(null, allVals);
-    if (state.view === "corr") { lo = Math.min(lo, -1); hi = Math.max(hi, 1); }
     var pad = (hi - lo) * 0.08 || 1;
     lo -= pad; hi += pad;
     var n = DATA.dates.length;
