@@ -5,76 +5,92 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>FX Realized Covariance &ndash; Michael Stollenwerk</title>
 <link rel="icon" href="/icon.png" type="image/png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  body {
-    margin: 0;
-    font-family: "Helvetica Neue", Arial, sans-serif;
-    background: white;
-    color: black;
-  }
-  .container {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 1rem 2rem;
-  }
-  h1 {
-    font-size: 2rem;
-    color: #5A1E2A;
-    margin-bottom: 1rem;
-    border-bottom: 2px solid #5A1E2A;
-    padding-bottom: 0.5rem;
-  }
-  .back-link {
-    display: inline-block;
-    margin-bottom: 1.5rem;
-    padding: 0.6rem 1rem;
-    background: #5A1E2A;
-    color: white;
-    text-decoration: none;
-    border-radius: 0;
-    font-size: 0.9rem;
-    font-weight: bold;
-    transition: transform 0.2s ease, background 0.3s ease;
-  }
-  .back-link:hover {
-    background: #3E141D;
-    transform: scale(1.05);
-  }
-  .description {
-    font-size: 1rem;
-    line-height: 1.6;
-    margin-bottom: 2rem;
-    color: #333;
-  }
-  .plot-wrapper {
-    margin: 2rem 0;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    padding: 1.5rem;
-  }
-
-  /* ---- FX matrix tool, styled to the site's palette ---- */
   :root {
-    --ink:           #111;
-    --ink-secondary: #52565c;
-    --muted:         #8a8a8a;
-    --border:        rgba(0,0,0,0.10);
-    --border-strong: rgba(0,0,0,0.20);
-    --surface:       #fafafa;
+    --page:           #0a0908;
+    --surface:        #15120f;
+    --surface-raised: #1e1916;
+    --ink:            #f3ece4;
+    --ink-secondary:  #b6a99e;
+    --muted:          #756a63;
+    --border:         rgba(255,255,255,0.10);
+    --border-strong:  rgba(255,255,255,0.22);
 
-    --diverging-neg: #2a78d6;
-    --diverging-mid: #f0efec;
-    --diverging-pos: #e34948;
+    --brand:          #8a2f42;   /* the site's own wine-red, used only for the exit link */
+    --brand-hover:    #a83b52;
 
-    --accent:        #5A1E2A;
-    --accent-ink:    #ffffff;
-    --accent-wash:   rgba(90,30,42,0.08);
+    --accent:         #e0a13a;   /* this page's own accent - amber, distinct from the brand link and the data poles */
+    --accent-ink:     #14100a;
+    --accent-wash:    rgba(224,161,58,0.14);
+
+    --diverging-neg:  #3987e5;
+    --diverging-mid:  #2b2724;
+    --diverging-pos:  #e6595f;
+
+    --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   }
-  .fx * { box-sizing: border-box; }
-  .fx { font-variant-numeric: tabular-nums; }
-  .fx a { color: inherit; }
-  .fx button {
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--mono);
+  }
+  body { font-size: 14px; line-height: 1.55; }
+  ::selection { background: var(--accent-wash); }
+  a { color: inherit; }
+
+  .container { max-width: 1180px; margin: 0 auto; padding: 2.5rem 1.75rem 4rem; }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    margin-bottom: 2rem;
+    padding: 0.55rem 0.9rem;
+    background: transparent;
+    border: 1px solid var(--brand);
+    color: var(--brand-hover);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .back-link:hover { background: var(--brand); color: #fff; }
+
+  h1 {
+    font-size: 2.1rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin: 0 0 0.9rem;
+    line-height: 1.1;
+  }
+  h1 .dim { color: var(--muted); font-weight: 500; }
+
+  .description {
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: var(--ink-secondary);
+    max-width: 68ch;
+    margin: 0 0 2.25rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--accent);
+  }
+
+  .plot-wrapper {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1.5rem 1.5rem 1.75rem;
+  }
+
+  * { box-sizing: border-box; }
+  button {
     font-family: inherit;
     font-size: inherit;
     color: inherit;
@@ -82,29 +98,32 @@
     border: none;
     cursor: pointer;
   }
-  .fx button:focus-visible, .fx input:focus-visible {
+  button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
     outline: 2px solid var(--accent);
-    outline-offset: 2px;
+    outline-offset: 1px;
   }
-  .fx input[type="date"] {
-    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    font-size: 13px;
+  input[type="date"] {
+    font-family: var(--mono);
+    font-size: 12px;
     color: var(--ink);
-    background: var(--surface);
+    background: var(--page);
     border: 1px solid var(--border-strong);
-    border-radius: 4px;
     padding: 5px 8px;
   }
+  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.8); }
 
   .fx-meta {
     display: flex;
     justify-content: flex-end;
-    margin: -0.5rem 0 1rem;
-    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    font-size: 12px;
+    align-items: baseline;
+    gap: 0.4em;
+    margin: -0.3rem 0 1.1rem;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
     color: var(--muted);
   }
-  .fx-meta .n { color: var(--ink); font-weight: 700; font-size: 17px; margin-right: 5px; }
+  .fx-meta .n { color: var(--accent); font-weight: 800; font-size: 19px; letter-spacing: 0; text-transform: none; }
 
   .fx-controls {
     display: flex;
@@ -114,166 +133,129 @@
     flex-wrap: wrap;
     margin-bottom: 18px;
   }
-  .segmented {
-    display: inline-flex;
-    border: 1px solid var(--border-strong);
-    border-radius: 4px;
-    overflow: hidden;
-    background: var(--surface);
-  }
+  .segmented { display: inline-flex; border: 1px solid var(--border-strong); }
   .segmented button {
     padding: 7px 14px;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
     color: var(--ink-secondary);
   }
   .segmented button + button { border-left: 1px solid var(--border-strong); }
-  .segmented button[aria-pressed="true"] {
-    background: var(--accent);
-    color: var(--accent-ink);
-  }
+  .segmented button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
 
   .datenav { display: flex; align-items: center; gap: 8px; }
   .datenav button.step {
-    width: 30px; height: 30px;
+    width: 28px; height: 28px;
     display: grid; place-items: center;
     border: 1px solid var(--border-strong);
-    border-radius: 4px;
-    background: var(--surface);
-    font-size: 15px;
+    background: transparent;
+    font-size: 14px;
+    color: var(--ink-secondary);
   }
-  .datenav button.step:hover { background: var(--accent-wash); }
-  .date-label { font-size: 16px; font-weight: 700; min-width: 15ch; text-align: center; }
+  .datenav button.step:hover { border-color: var(--accent); color: var(--accent); }
+  .date-label { font-size: 15px; font-weight: 700; min-width: 15ch; text-align: center; }
   .date-sub {
-    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    font-size: 11px; color: var(--muted); text-align: center; margin-top: 1px;
+    font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--muted); text-align: center; margin-top: 1px;
   }
 
-  .fx-timeline {
-    position: relative;
-    height: 26px;
-    margin: 4px 0 6px;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-  }
+  .fx-timeline { position: relative; height: 24px; margin: 4px 0 5px; border-bottom: 1px solid var(--border); cursor: pointer; }
   .fx-timeline .track { position: absolute; inset: 0; display: flex; align-items: flex-end; }
-  .fx-timeline .tick { flex: 1 1 auto; height: 7px; background: var(--border-strong); margin-right: 1px; }
-  .fx-timeline .tick.current { background: var(--accent); height: 15px; }
+  .fx-timeline .tick { flex: 1 1 auto; height: 6px; background: var(--border-strong); margin-right: 1px; }
+  .fx-timeline .tick.current { background: var(--accent); height: 14px; }
   .fx-timeline .tick:hover { background: var(--diverging-pos); }
-  .fx-timeline-hint { font-size: 11px; color: var(--muted); margin: 0 0 20px; }
+  .fx-timeline-hint { font-size: 10.5px; color: var(--muted); margin: 0 0 22px; letter-spacing: 0.02em; }
 
-  .fx-board {
-    display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-    gap: 24px;
-    align-items: start;
-  }
-  @media (max-width: 720px) { .fx-board { grid-template-columns: 1fr; } }
+  .fx-board { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; }
+  @media (max-width: 760px) { .fx-board { grid-template-columns: 1fr; } }
 
   .fx-panel {
-    background: var(--surface);
+    background: var(--page);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
   }
+  .fx-panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
   .fx-panel h2 {
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--muted);
-    margin: 0 0 12px;
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--muted); margin: 0;
+  }
+  .fx-clear {
+    font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--accent); text-decoration: underline; text-underline-offset: 2px;
   }
 
   .matrix-scroll { overflow-x: auto; }
   table.fx-matrix { border-collapse: collapse; width: 100%; table-layout: fixed; }
   table.fx-matrix th, table.fx-matrix td { text-align: center; padding: 0; }
-  table.fx-matrix th {
-    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    font-size: 11px; font-weight: 700; color: var(--ink-secondary); padding: 6px 2px;
-  }
-  table.fx-matrix td.cell { position: relative; height: 48px; min-width: 48px; border-radius: 4px; cursor: pointer; }
+  table.fx-matrix th { font-size: 10.5px; font-weight: 700; color: var(--ink-secondary); padding: 5px 2px; }
+  table.fx-matrix td.cell { position: relative; height: 47px; min-width: 47px; cursor: pointer; }
   table.fx-matrix td.cell .fill {
-    position: absolute; inset: 2px; border-radius: 3px;
+    position: absolute; inset: 2px;
     display: grid; place-items: center;
-    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    font-size: 12px; font-weight: 600;
-    transition: transform 120ms ease;
+    font-size: 12px; font-weight: 700;
+    transition: transform 100ms ease;
   }
-  table.fx-matrix td.cell.diag .fill { font-weight: 700; }
-  table.fx-matrix td.cell:hover .fill, table.fx-matrix td.cell.pinned .fill {
+  table.fx-matrix td.cell.diag .fill { font-weight: 800; }
+  table.fx-matrix td.cell:hover .fill {
     transform: scale(1.08);
-    box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--border-strong);
+    box-shadow: 0 0 0 2px var(--page), 0 0 0 3px var(--border-strong);
   }
-  table.fx-matrix td.cell.pinned .fill {
-    box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--accent);
-  }
-
-  .fx-legend {
-    display: flex; align-items: center; gap: 10px; margin-top: 14px;
-    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    font-size: 11px; color: var(--muted);
-  }
-  .fx-legend .bar {
-    flex: 1; height: 8px; border-radius: 4px;
-    background: linear-gradient(90deg, var(--diverging-neg), var(--diverging-mid), var(--diverging-pos));
+  table.fx-matrix td.cell.selected .fill {
+    box-shadow: 0 0 0 2px var(--page), 0 0 0 3px var(--sel-color, var(--accent));
   }
 
-  .history-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
-  .history-pair { font-size: 17px; font-weight: 700; }
-  .history-pair .sep { color: var(--muted); font-weight: 400; padding: 0 2px; }
-  .history-val {
-    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    font-size: 19px; font-weight: 700;
-  }
-  .history-note { font-size: 12px; color: var(--muted); margin: 0 0 12px; }
-  svg.hist-chart { width: 100%; height: 160px; overflow: visible; }
-  .hist-empty { color: var(--muted); font-size: 13px; padding: 36px 0; text-align: center; }
+  .fx-legend { display: flex; align-items: center; gap: 10px; margin-top: 13px; font-size: 10px; color: var(--muted); }
+  .fx-legend .bar { flex: 1; height: 6px; background: linear-gradient(90deg, var(--diverging-neg), var(--diverging-mid), var(--diverging-pos)); }
 
-  .fx-method {
-    margin-top: 28px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-    font-size: 12.5px;
-    color: #444;
-    line-height: 1.65;
+  .fx-readouts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .readout-row { display: grid; grid-template-columns: 10px 1fr auto auto; align-items: center; gap: 8px; }
+  .readout-row .swatch { width: 10px; height: 10px; border-radius: 50%; }
+  .readout-row.preview .swatch { border-radius: 0; border: 1px dashed var(--muted); background: transparent !important; }
+  .readout-row .pair { font-size: 12.5px; font-weight: 600; }
+  .readout-row .pair .sep { color: var(--muted); font-weight: 400; padding: 0 2px; }
+  .readout-row.preview .pair { color: var(--ink-secondary); font-weight: 400; font-style: italic; }
+  .readout-row .val { font-size: 13px; font-weight: 700; text-align: right; }
+  .readout-row .pctl { font-size: 10px; color: var(--muted); text-align: right; min-width: 4.5ch; }
+
+  .hist-chart-wrap { flex: 1; min-height: 140px; display: flex; }
+  svg.hist-chart { width: 100%; height: 100%; overflow: visible; }
+  .hist-empty {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 12px; text-align: center; padding: 0 20px;
   }
-  .fx-method h3 {
-    font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
-    color: var(--muted); margin: 0 0 8px; font-weight: 700;
-  }
-  .fx-method p { margin: 0 0 8px; max-width: 74ch; }
-  .fx-method code {
-    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    font-size: 11.5px; background: #fff; border: 1px solid var(--border);
-    border-radius: 3px; padding: 1px 5px;
-  }
+
+  .fx-method { margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 11.5px; color: var(--ink-secondary); line-height: 1.7; }
+  .fx-method h3 { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 8px; font-weight: 700; }
+  .fx-method p { margin: 0 0 8px; max-width: 78ch; }
+  .fx-method code { font-size: 11px; background: var(--page); border: 1px solid var(--border); padding: 1px 5px; }
 
   .fx-tooltip {
     position: fixed; pointer-events: none;
-    background: #ffffff; border: 1px solid var(--border-strong); border-radius: 6px;
-    padding: 7px 10px;
-    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    font-size: 11.5px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+    background: var(--surface-raised); border: 1px solid var(--border-strong);
+    padding: 6px 9px; font-size: 11px;
     z-index: 50; opacity: 0; transition: opacity 80ms ease; white-space: nowrap;
   }
   .fx-tooltip.show { opacity: 1; }
   .fx-tooltip .t-pair { color: var(--ink-secondary); margin-bottom: 2px; }
-  .fx-tooltip .t-val { font-size: 14px; font-weight: 700; }
+  .fx-tooltip .t-val { font-size: 13px; font-weight: 700; }
 </style>
 <script data-goatcounter="https://mstollenwerk.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
   <div class="container">
-    <a href="index.html" class="back-link">&larr; Back to Home</a>
-    <h1>FX Realized Covariance</h1>
+    <a href="index.html" class="back-link">&larr; home</a>
+    <h1>FX Realized <span class="dim">/</span> Covariance</h1>
     <div class="description">
-      <p>Daily bias-adjusted realized covariance across seven major USD pairs, from 5-minute and 1-minute log returns
-        (Zhang, Mykland &amp; A&iuml;t-Sahalia, 2005). Hover or click any cell in the matrix below for its full history.</p>
+      <p>Daily bias-adjusted realized covariance across seven major USD pairs, from 5-minute and 1-minute log
+        returns (Zhang, Mykland &amp; A&iuml;t-Sahalia, 2005). Click matrix cells to compare their history &mdash;
+        select more than one at once.</p>
     </div>
 
-    <div class="plot-wrapper fx">
+    <div class="plot-wrapper">
       <div class="fx-meta"><span class="n" id="dayCount">&mdash;</span> trading days</div>
 
       <div class="fx-controls">
@@ -293,11 +275,11 @@
       </div>
 
       <div class="fx-timeline" id="timeline" aria-label="Trading-day timeline, click to jump"></div>
-      <p class="fx-timeline-hint">2025-11-26 to 2026-09-11 &middot; click the timeline to jump to a date</p>
+      <p class="fx-timeline-hint">2025-11-26 &rarr; 2026-09-11 &middot; click the timeline to jump to a date</p>
 
       <div class="fx-board">
         <section class="fx-panel">
-          <h2 id="matrixTitle">Correlation matrix</h2>
+          <div class="fx-panel-head"><h2 id="matrixTitle">Correlation matrix</h2></div>
           <div class="matrix-scroll">
             <table class="fx-matrix" id="matrixTable"></table>
           </div>
@@ -309,9 +291,12 @@
         </section>
 
         <section class="fx-panel">
-          <h2>Cell history</h2>
-          <div id="historyBody">
-            <div class="hist-empty">Hover or click a matrix cell to see its full-history chart.</div>
+          <div class="fx-panel-head">
+            <h2>Cell history</h2>
+            <button type="button" class="fx-clear" id="clearSel" style="display:none;">clear</button>
+          </div>
+          <div id="historyBody" style="flex:1; display:flex; flex-direction:column; min-height:0;">
+            <div class="hist-empty">Click one or more matrix cells to compare their full history. Dashed = unconditional mean.</div>
           </div>
         </section>
       </div>
@@ -319,35 +304,15 @@
       <footer class="fx-method">
         <h3>Methodology</h3>
         <p>
-          Each trading day runs <code>17:00 ET &rarr; 17:00 ET</code> (the FX "New York cut"), converted from real
-          <code>America/New_York</code> local time so the UTC boundary is correct across DST. Prices are 1-minute
-          closes from massive.com's consolidated FX feed. A fixed daily window, <code>16:55&ndash;18:15 ET</code>,
-          is always excluded &mdash; the last 5 minutes of New York hours plus the following 1h15m, the daily
-          rollover stretch found to produce most single-tick bad prints. Bars manually reviewed and marked erase
-          in the bad-tick review pass are excluded the same way.
+          Each trading day runs <code>17:00 ET &rarr; 17:00 ET</code>, with a fixed <code>16:55&ndash;18:15 ET</code>
+          window always excluded &mdash; the daily New York rollover stretch responsible for most single-tick bad
+          prints &mdash; along with any bar marked erase in manual review. Every excluded or missing minute is
+          filled by geometric/log-linear interpolation between the nearest real closes.
         </p>
         <p>
-          Every excluded or missing minute &mdash; weekend, holiday, an erased tick, or a genuine gap in the source
-          feed (AUD/USD in particular has known chronic gaps, confirmed by massive.com support as a source-side
-          issue) &mdash; is filled by geometric/log-linear interpolation between the nearest real closes: a
-          straight line in log-price, the mode of a lognormal bridge conditioned on its two endpoints. A day is
-          only included if every pair still has at least 360 genuinely observed minutes after exclusions; 4 days
-          in this range were dropped on that basis (2 holidays, 2 AUD/USD gap days).
-        </p>
-        <p>
-          The realized-covariance estimator combines 5-minute and 1-minute sampling scales to cancel
-          microstructure-noise bias (Zhang/Mykland/A&iuml;t-Sahalia, 2005) &mdash; the same estimator used across
-          this pipeline's <a href="sp500-covariance.html">S&amp;P 500 side</a>, unmodified.
-        </p>
-        <p>
-          The seven pairs don't natively share a quoting side: EUR, GBP, AUD and NZD quote USD as the denominator
-          (price up = dollar weaker), while JPY, CAD and CHF quote it as the numerator (price up = dollar
-          <em>stronger</em>) &mdash; the opposite sign. Left uncorrected, any broad dollar move would mechanically
-          flip the sign of every correlation between the two groups, which has nothing to do with real
-          co-movement. Returns for USD/JPY, USD/CAD and USD/CHF are negated before entering the estimator so all
-          seven series consistently represent that currency's move against the dollar; tickers still display in
-          their normal market convention. Realized volatility (the diagonal) is unaffected by this, since
-          Var(&minus;X) = Var(X).
+          The bias-adjusted realized-covariance estimator (Zhang/Mykland/A&iuml;t-Sahalia, 2005) combines 5-minute
+          and 1-minute sampling to cancel microstructure noise. A day is only included if every pair has at least
+          360 genuinely observed minutes after exclusions; 4 of 208 days in this range were dropped on that basis.
         </p>
       </footer>
     </div>
@@ -363,7 +328,15 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
   "use strict";
 
   var DATA = RC_DATA;
-  var state = { view: "corr", dateIdx: 0, pinned: null, hover: null };
+  var PALETTE = ["#e0a13a", "#3ecfc0", "#a78bfa", "#f2789f", "#7fc4f0"];
+  var PREVIEW_COLOR = "rgba(243,236,228,0.5)";
+
+  var state = {
+    view: "corr",
+    dateIdx: 0,
+    selected: [],       // [{r,c}], persistent, toggled by click
+    hoverPreview: null  // {r,c} or null, transient
+  };
 
   function init() {
     document.getElementById("dayCount").textContent = DATA.dates.length;
@@ -373,18 +346,16 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
     dp.min = DATA.dates[0];
     dp.max = DATA.dates[DATA.dates.length - 1];
     dp.value = DATA.dates[state.dateIdx];
-    dp.addEventListener("change", function () {
-      state.dateIdx = nearestDateIdx(dp.value);
-      render();
-    });
+    dp.addEventListener("change", function () { state.dateIdx = nearestDateIdx(dp.value); render(); });
 
     document.getElementById("prevDay").addEventListener("click", function () {
-      state.dateIdx = Math.max(0, state.dateIdx - 1);
-      render();
+      state.dateIdx = Math.max(0, state.dateIdx - 1); render();
     });
     document.getElementById("nextDay").addEventListener("click", function () {
-      state.dateIdx = Math.min(DATA.dates.length - 1, state.dateIdx + 1);
-      render();
+      state.dateIdx = Math.min(DATA.dates.length - 1, state.dateIdx + 1); render();
+    });
+    document.getElementById("clearSel").addEventListener("click", function () {
+      state.selected = []; render();
     });
 
     Array.prototype.forEach.call(document.querySelectorAll(".segmented button"), function (btn) {
@@ -435,7 +406,7 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
   function readableTextOn(rgbStr) {
     var m = rgbStr.match(/[\d.]+/g).map(Number);
     var lum = (0.299 * m[0] + 0.587 * m[1] + 0.114 * m[2]) / 255;
-    return lum > 0.58 ? "#111111" : "#f5f4f0";
+    return lum > 0.58 ? "#14100a" : "#f5f4f0";
   }
 
   var _volDomainCache = null;
@@ -462,6 +433,7 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
     return (v >= 0 ? "+" : "") + v.toFixed(1) + "%";
   }
   function prettyPair(sym) { return sym.slice(0, 3) + "/" + sym.slice(3); }
+  function keyOf(r, c) { return r + "," + c; }
 
   function buildTimeline() {
     var el = document.getElementById("timeline");
@@ -517,7 +489,8 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
         td.addEventListener("mousemove", function (e) { positionTooltip(e); });
         td.addEventListener("mouseleave", onCellLeave);
         td.addEventListener("click", function () {
-          state.pinned = (state.pinned && state.pinned.r === r && state.pinned.c === c) ? null : { r: r, c: c };
+          var idx = state.selected.findIndex(function (s) { return s.r === r && s.c === c; });
+          if (idx >= 0) state.selected.splice(idx, 1); else state.selected.push({ r: r, c: c });
           render();
         });
         tr.appendChild(td);
@@ -528,7 +501,7 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
   }
 
   function onCellHover(r, c, evt) {
-    state.hover = { r: r, c: c };
+    state.hoverPreview = { r: r, c: c };
     var m = currentMatrix();
     var v = m[r][c];
     var tip = document.getElementById("tooltip");
@@ -537,7 +510,7 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
       '<div class="t-val">' + fmtVal(v) + '</div>';
     tip.classList.add("show");
     positionTooltip(evt);
-    renderHistory(r, c);
+    renderHistory();
   }
   function positionTooltip(evt) {
     var tip = document.getElementById("tooltip");
@@ -545,14 +518,9 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
     tip.style.top = (evt.clientY + 14) + "px";
   }
   function onCellLeave() {
-    state.hover = null;
+    state.hoverPreview = null;
     document.getElementById("tooltip").classList.remove("show");
-    if (state.pinned) {
-      renderHistory(state.pinned.r, state.pinned.c);
-    } else {
-      document.getElementById("historyBody").innerHTML =
-        '<div class="hist-empty">Hover or click a matrix cell to see its full-history chart.</div>';
-    }
+    renderHistory();
   }
 
   function render() {
@@ -565,6 +533,9 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
     updateTimeline();
 
     var m = currentMatrix();
+    var selKeys = {};
+    state.selected.forEach(function (s, i) { selKeys[keyOf(s.r, s.c)] = PALETTE[i % PALETTE.length]; });
+
     var cells = document.querySelectorAll("#matrixTable td.cell");
     cells.forEach(function (td) {
       var r = Number(td.dataset.r), c = Number(td.dataset.c);
@@ -575,67 +546,107 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
       fill.style.color = (v === null || v === undefined || isNaN(v)) ? "var(--muted)" : readableTextOn(col);
       fill.textContent = (v === null || v === undefined || isNaN(v)) ? String.fromCharCode(8212) :
         (state.view === "corr" ? v.toFixed(2) : v.toFixed(1));
-      td.classList.toggle("pinned", !!(state.pinned && state.pinned.r === r && state.pinned.c === c));
+      var selColor = selKeys[keyOf(r, c)];
+      td.classList.toggle("selected", !!selColor);
+      td.style.setProperty("--sel-color", selColor || "");
     });
 
     document.getElementById("legLow").textContent  = state.view === "corr" ? "-1.00" : ("-" + volDomain().toFixed(1) + "%");
     document.getElementById("legHigh").textContent = state.view === "corr" ? "+1.00" : ("+" + volDomain().toFixed(1) + "%");
 
-    if (state.pinned) {
-      renderHistory(state.pinned.r, state.pinned.c);
-    } else if (!state.hover) {
-      var best = { r: 0, c: 1, av: -1 };
-      for (var r = 0; r < DATA.symbols.length; r++) {
-        for (var c = 0; c < DATA.symbols.length; c++) {
-          if (r === c) continue;
-          var vv = Math.abs(m[r][c]);
-          if (vv > best.av) best = { r: r, c: c, av: vv };
-        }
-      }
-      renderHistory(best.r, best.c);
-    }
+    document.getElementById("clearSel").style.display = state.selected.length ? "" : "none";
+
+    renderHistory();
   }
 
-  function renderHistory(r, c) {
-    var host = document.getElementById("historyBody");
-    var isDiag = r === c;
-    var series = DATA.dates.map(function (d) {
+  function activeList() {
+    var list = state.selected.map(function (s, i) {
+      return { r: s.r, c: s.c, color: PALETTE[i % PALETTE.length], preview: false };
+    });
+    if (state.hoverPreview) {
+      var exists = state.selected.some(function (s) { return s.r === state.hoverPreview.r && s.c === state.hoverPreview.c; });
+      if (!exists) list.push({ r: state.hoverPreview.r, c: state.hoverPreview.c, color: PREVIEW_COLOR, preview: true });
+    }
+    return list;
+  }
+
+  function seriesFor(r, c) {
+    return DATA.dates.map(function (d) {
       var m = state.view === "corr" ? DATA.corr[d] : DATA.vol[d];
       return m[r][c];
     });
-    var nowVal = series[state.dateIdx];
-
-    var head = document.createElement("div");
-    head.className = "history-head";
-    var title = document.createElement("div");
-    title.className = "history-pair";
-    title.innerHTML = prettyPair(DATA.symbols[r]) + (isDiag ? "" : '<span class="sep">&middot;</span>' + prettyPair(DATA.symbols[c]));
-    var val = document.createElement("div");
-    val.className = "history-val";
-    val.textContent = fmtVal(nowVal);
-    head.appendChild(title); head.appendChild(val);
-
-    var note = document.createElement("p");
-    note.className = "history-note";
-    note.textContent = state.view === "corr"
-      ? (isDiag ? "Always 1.00 on the diagonal." : "Daily realized correlation, full history.")
-      : (isDiag ? "Annualized realized volatility (%)." : "Annualized realized co-volatility (signed sqrt of covariance, %).");
-
-    host.innerHTML = "";
-    host.appendChild(head);
-    host.appendChild(note);
-    host.appendChild(buildLineChart(series));
+  }
+  function validVals(series) { return series.filter(function (v) { return v !== null && v !== undefined && !isNaN(v); }); }
+  function percentileOf(series, idx) {
+    var cur = series[idx];
+    if (cur === null || cur === undefined || isNaN(cur)) return null;
+    var vals = validVals(series);
+    var below = vals.filter(function (v) { return v <= cur; }).length;
+    return Math.round(100 * below / vals.length);
+  }
+  function meanOf(series) {
+    var vals = validVals(series);
+    return vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
   }
 
-  function buildLineChart(series) {
-    var W = 480, H = 160, padL = 34, padR = 8, padT = 10, padB = 20;
-    var vals = series.filter(function (v) { return v !== null && v !== undefined && !isNaN(v); });
-    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+  function renderHistory() {
+    var host = document.getElementById("historyBody");
+    var list = activeList();
+
+    if (list.length === 0) {
+      host.innerHTML = '<div class="hist-empty">Click one or more matrix cells to compare their full history. Dashed = unconditional mean.</div>';
+      return;
+    }
+
+    list.forEach(function (entry) {
+      entry.series = seriesFor(entry.r, entry.c);
+      entry.mean = meanOf(entry.series);
+      entry.pctl = percentileOf(entry.series, state.dateIdx);
+      entry.nowVal = entry.series[state.dateIdx];
+    });
+
+    host.innerHTML = "";
+
+    var readouts = document.createElement("div");
+    readouts.className = "fx-readouts";
+    list.forEach(function (entry) {
+      var row = document.createElement("div");
+      row.className = "readout-row" + (entry.preview ? " preview" : "");
+      var swatch = document.createElement("div");
+      swatch.className = "swatch";
+      swatch.style.background = entry.preview ? "transparent" : entry.color;
+      var pair = document.createElement("div");
+      pair.className = "pair";
+      var isDiag = entry.r === entry.c;
+      pair.innerHTML = prettyPair(DATA.symbols[entry.r]) + (isDiag ? "" : '<span class="sep">&middot;</span>' + prettyPair(DATA.symbols[entry.c]));
+      var val = document.createElement("div");
+      val.className = "val";
+      val.textContent = fmtVal(entry.nowVal);
+      var pctl = document.createElement("div");
+      pctl.className = "pctl";
+      pctl.textContent = entry.pctl === null ? "" : ("p" + entry.pctl);
+      row.appendChild(swatch); row.appendChild(pair); row.appendChild(val); row.appendChild(pctl);
+      readouts.appendChild(row);
+    });
+    host.appendChild(readouts);
+
+    var chartWrap = document.createElement("div");
+    chartWrap.className = "hist-chart-wrap";
+    chartWrap.appendChild(buildMultiLineChart(list));
+    host.appendChild(chartWrap);
+  }
+
+  function buildMultiLineChart(list) {
+    var W = 560, H = 300, padL = 34, padR = 8, padT = 10, padB = 8;
+    var allVals = [];
+    list.forEach(function (e) { allVals = allVals.concat(validVals(e.series)); allVals.push(e.mean); });
+    var lo = Math.min.apply(null, allVals), hi = Math.max.apply(null, allVals);
     if (state.view === "corr") { lo = Math.min(lo, -1); hi = Math.max(hi, 1); }
     var pad = (hi - lo) * 0.08 || 1;
     lo -= pad; hi += pad;
+    var n = DATA.dates.length;
 
-    function x(i) { return padL + (i / (series.length - 1)) * (W - padL - padR); }
+    function x(i) { return padL + (i / (n - 1)) * (W - padL - padR); }
     function y(v) { return padT + (1 - (v - lo) / (hi - lo)) * (H - padT - padB); }
 
     var svgNS = "http://www.w3.org/2000/svg";
@@ -656,43 +667,59 @@ var RC_DATA = {"dates":["2025-11-26","2025-11-27","2025-11-28","2025-12-01","202
     [hi - pad, lo + pad].forEach(function (v) {
       var t = document.createElementNS(svgNS, "text");
       t.setAttribute("x", 2); t.setAttribute("y", y(v) + 3);
-      t.setAttribute("font-family", "ui-monospace, monospace");
+      t.setAttribute("font-family", "JetBrains Mono, monospace");
       t.setAttribute("font-size", "9.5");
       t.setAttribute("fill", cssVar("--muted"));
       t.textContent = state.view === "corr" ? v.toFixed(1) : v.toFixed(0);
       svg.appendChild(t);
     });
 
-    var d = "";
-    series.forEach(function (v, i) {
-      if (v === null || v === undefined || isNaN(v)) return;
-      d += (d === "" ? "M" : "L") + x(i).toFixed(1) + "," + y(v).toFixed(1) + " ";
+    list.forEach(function (entry) {
+      // unconditional mean, plotted discretely: a dashed reference line, not part of the series path
+      var my = y(entry.mean);
+      var meanLine = document.createElementNS(svgNS, "line");
+      meanLine.setAttribute("x1", padL); meanLine.setAttribute("x2", W - padR);
+      meanLine.setAttribute("y1", my); meanLine.setAttribute("y2", my);
+      meanLine.setAttribute("stroke", entry.preview ? "rgba(243,236,228,0.3)" : entry.color);
+      meanLine.setAttribute("stroke-width", "1");
+      meanLine.setAttribute("stroke-dasharray", "2,3");
+      meanLine.setAttribute("opacity", entry.preview ? "0.5" : "0.55");
+      svg.appendChild(meanLine);
+
+      var d = "";
+      entry.series.forEach(function (v, i) {
+        if (v === null || v === undefined || isNaN(v)) return;
+        d += (d === "" ? "M" : "L") + x(i).toFixed(1) + "," + y(v).toFixed(1) + " ";
+      });
+      var path = document.createElementNS(svgNS, "path");
+      path.setAttribute("d", d.trim());
+      path.setAttribute("fill", "none");
+      path.setAttribute("stroke", entry.color);
+      path.setAttribute("stroke-width", entry.preview ? "1.5" : "1.9");
+      if (entry.preview) path.setAttribute("stroke-dasharray", "5,3");
+      path.setAttribute("stroke-linejoin", "round");
+      path.setAttribute("opacity", entry.preview ? "0.85" : "1");
+      svg.appendChild(path);
+
+      var cx = x(state.dateIdx), cy = y(entry.nowVal);
+      if (!isNaN(cy)) {
+        var dot = document.createElementNS(svgNS, "circle");
+        dot.setAttribute("cx", cx); dot.setAttribute("cy", cy);
+        dot.setAttribute("r", entry.preview ? "3" : "3.5");
+        dot.setAttribute("fill", entry.color);
+        dot.setAttribute("stroke", cssVar("--page"));
+        dot.setAttribute("stroke-width", "2");
+        svg.appendChild(dot);
+      }
     });
-    var path = document.createElementNS(svgNS, "path");
-    path.setAttribute("d", d.trim());
-    path.setAttribute("fill", "none");
-    path.setAttribute("stroke", cssVar("--accent"));
-    path.setAttribute("stroke-width", "1.75");
-    path.setAttribute("stroke-linejoin", "round");
-    svg.appendChild(path);
 
-    var cx = x(state.dateIdx), cy = y(series[state.dateIdx]);
-    if (!isNaN(cy)) {
-      var vline = document.createElementNS(svgNS, "line");
-      vline.setAttribute("x1", cx); vline.setAttribute("x2", cx);
-      vline.setAttribute("y1", padT); vline.setAttribute("y2", H - padB);
-      vline.setAttribute("stroke", cssVar("--border"));
-      vline.setAttribute("stroke-width", "1");
-      svg.appendChild(vline);
-
-      var dot = document.createElementNS(svgNS, "circle");
-      dot.setAttribute("cx", cx); dot.setAttribute("cy", cy);
-      dot.setAttribute("r", "3.5");
-      dot.setAttribute("fill", cssVar("--accent"));
-      dot.setAttribute("stroke", "#ffffff");
-      dot.setAttribute("stroke-width", "2");
-      svg.appendChild(dot);
-    }
+    var cx0 = x(state.dateIdx);
+    var vline = document.createElementNS(svgNS, "line");
+    vline.setAttribute("x1", cx0); vline.setAttribute("x2", cx0);
+    vline.setAttribute("y1", padT); vline.setAttribute("y2", H - padB);
+    vline.setAttribute("stroke", cssVar("--border"));
+    vline.setAttribute("stroke-width", "1");
+    svg.insertBefore(vline, svg.firstChild);
 
     return svg;
   }
