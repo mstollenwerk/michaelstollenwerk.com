@@ -123,12 +123,30 @@
   .date-label { font-family: var(--serif); font-size: 15px; font-weight: 600; min-width: 15ch; text-align: center; }
   .date-sub { font-family: var(--mono); font-size: 10px; letter-spacing: 0.03em; color: var(--muted); text-align: center; margin-top: 1px; }
 
-  .fx-timeline { position: relative; height: 24px; margin: 4px 0 5px; border-bottom: 1px solid var(--border); cursor: pointer; }
-  .fx-timeline .track { position: absolute; inset: 0; display: flex; align-items: flex-end; }
+  .fx-timeline { position: relative; height: 24px; margin: 4px 0 5px; border-bottom: 1px solid var(--border); }
+  .fx-timeline .track { position: absolute; inset: 0; display: flex; align-items: flex-end; pointer-events: none; }
   .fx-timeline .tick { flex: 1 1 auto; height: 6px; background: var(--border-strong); margin-right: 1px; }
   .fx-timeline .tick.current { background: var(--accent); height: 14px; }
-  .fx-timeline .tick:hover { background: var(--diverging-pos); }
+  /* native range input overlaid on the tick track above - the ticks are too thin individually to
+     hit reliably, so all pointer/keyboard interaction goes through this instead; track/thumb are
+     styled invisible except a thin accent thumb that echoes the .tick.current marker below it */
+  .timeline-slider {
+    position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0;
+    cursor: pointer; -webkit-appearance: none; appearance: none; background: transparent;
+  }
+  .timeline-slider::-webkit-slider-runnable-track { background: transparent; height: 100%; }
+  .timeline-slider::-moz-range-track { background: transparent; height: 100%; border: none; }
+  .timeline-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; margin-top: 2px;
+    width: 2px; height: 20px; background: var(--accent); border: none; cursor: pointer;
+    box-shadow: 0 0 0 3px rgba(90,30,42,0.15);
+  }
+  .timeline-slider::-moz-range-thumb {
+    width: 2px; height: 20px; background: var(--accent); border: none; cursor: pointer;
+    box-shadow: 0 0 0 3px rgba(90,30,42,0.15);
+  }
   .fx-timeline-hint { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin: 0 0 24px; }
+  .hist-open-hint { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin: 8px 0 0; }
 
   .fx-board { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px; }
   @media (max-width: 760px) { .fx-board { grid-template-columns: 1fr; } }
@@ -229,8 +247,8 @@
         </div>
       </div>
 
-      <div class="fx-timeline" id="timeline" aria-label="Trading-day timeline, click to jump"></div>
-      <p class="fx-timeline-hint">2013-01-02 &rarr; 2026-09-10 &middot; click the timeline to jump to a date</p>
+      <div class="fx-timeline" id="timeline" aria-label="Trading-day timeline"></div>
+      <p class="fx-timeline-hint">2013-01-02 &rarr; 2026-09-10 &middot; drag the slider (or click anywhere on it) to jump to a date</p>
 
       <div class="fx-board">
         <section class="fx-panel">
@@ -295,6 +313,16 @@ var RC_DATA = {"dates":["2009-09-28","2009-09-29","2009-09-30","2009-10-01","200
   var PREVIEW_COLOR = "rgba(26,26,26,0.45)";
 
   var MA_WINDOW = 60; // trading days (~1 quarter) - smooths daily noise without lagging too far behind a real regime shift
+
+  // local-only deep link into the plots-only price viewer (review/viewer_app.R), which must
+  // already be running on this port - see that file's header comment. Resolves to nothing for
+  // any visitor other than the site owner, since 127.0.0.1 is always "this machine".
+  var LOCAL_VIEWER_URL = "http://127.0.0.1:7775/";
+  function openLocalViewer(dateStr, pairs) {
+    var url = LOCAL_VIEWER_URL + "?date=" + encodeURIComponent(dateStr) +
+      "&pairs=" + encodeURIComponent(pairs.join(","));
+    window.open(url, "_blank");
+  }
 
   var state = {
     view: "corr",
@@ -415,16 +443,28 @@ var RC_DATA = {"dates":["2009-09-28","2009-09-29","2009-09-30","2009-10-01","200
       track.appendChild(tick);
     });
     el.appendChild(track);
-    el.addEventListener("click", function (e) {
-      var idx = e.target.dataset ? e.target.dataset.idx : null;
-      if (idx === null || idx === undefined) return;
-      state.dateIdx = Number(idx);
+
+    // individual ticks are sub-pixel wide once there are 3000+ of them, so they can't be hit
+    // reliably by click - a native range input overlaid on top handles click/drag/keyboard instead
+    var slider = document.createElement("input");
+    slider.type = "range";
+    slider.className = "timeline-slider";
+    slider.min = 0;
+    slider.max = DATA.dates.length - 1;
+    slider.step = 1;
+    slider.setAttribute("aria-label", "Scrub trading days");
+    slider.id = "timelineSlider";
+    slider.addEventListener("input", function () {
+      state.dateIdx = Number(slider.value);
       render();
     });
+    el.appendChild(slider);
   }
   function updateTimeline() {
     var ticks = document.querySelectorAll(".fx-timeline .tick");
     ticks.forEach(function (t, i) { t.classList.toggle("current", i === state.dateIdx); });
+    var slider = document.getElementById("timelineSlider");
+    if (slider && Number(slider.value) !== state.dateIdx) slider.value = state.dateIdx;
   }
 
   function buildMatrixSkeleton() {
@@ -625,6 +665,11 @@ var RC_DATA = {"dates":["2009-09-28","2009-09-29","2009-09-30","2009-10-01","200
     chartWrap.className = "hist-chart-wrap";
     chartWrap.appendChild(buildMultiLineChart(list));
     host.appendChild(chartWrap);
+
+    var hint = document.createElement("p");
+    hint.className = "hist-open-hint";
+    hint.textContent = "Click a point to open that date in the local price-review app (only works on this computer) · drag to zoom.";
+    host.appendChild(hint);
   }
 
   function buildMultiLineChart(list) {
@@ -828,6 +873,13 @@ var RC_DATA = {"dates":["2009-09-28","2009-09-29","2009-09-30","2009-10-01","200
           renderHistory();
           return;
         }
+      } else {
+        // a real click, not a drag: open the local plots-only viewer at the date under the
+        // cursor, for whichever pair(s) this chart is currently showing (selected + hover preview)
+        var idx = idxFromVX(vx);
+        var syms = {};
+        list.forEach(function (e) { syms[DATA.symbols[e.r]] = true; syms[DATA.symbols[e.c]] = true; });
+        openLocalViewer(DATA.dates[idx], Object.keys(syms));
       }
       dragStartVX = null;
     }
