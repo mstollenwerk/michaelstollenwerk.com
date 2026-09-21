@@ -151,6 +151,10 @@
 
   .fx-board { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px; }
   @media (max-width: 760px) { .fx-board { grid-template-columns: 1fr; } }
+  /* Normalized determinant view: no matrix to show alongside it, so Fig.2 alone fills the width
+     both figures share otherwise, rather than sitting in its normal (narrower) half-width column */
+  .fx-board.single { grid-template-columns: 1fr; }
+  .fx-board.single .hist-chart-wrap { min-height: 340px; }
 
   .fx-panel { display: flex; flex-direction: column; }
   .fx-panel-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
@@ -178,16 +182,6 @@
 
   .fx-legend { display: flex; align-items: center; gap: 10px; margin-top: 14px; font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
   .fx-legend .bar { flex: 1; height: 6px; background: linear-gradient(90deg, var(--diverging-neg), var(--diverging-mid), var(--diverging-pos)); }
-
-  /* single-scalar "matrix" for the Normalized determinant view - a stat tile in the same slot,
-     shaded by its own-history percentile exactly like a matrix cell would be */
-  .fx-gv { padding: 28px 8px 10px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
-  .fx-gv .gv-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
-  .fx-gv .gv-value {
-    font-family: var(--serif); font-size: 2.6rem; font-weight: 600; line-height: 1;
-    padding: 14px 22px; border-radius: 2px;
-  }
-  .fx-gv .gv-pctl { font-family: var(--mono); font-size: 11px; color: var(--muted); }
 
   .fx-readouts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
   .readout-row { display: grid; grid-template-columns: 9px 1fr auto auto; align-items: center; gap: 8px; }
@@ -281,16 +275,11 @@
       <div class="fx-timeline" id="timeline" aria-label="Trading-day timeline"></div>
       <p class="fx-timeline-hint">2013-01-02 &rarr; 2026-09-10 &middot; drag the slider (or click anywhere on it) to jump to a date</p>
 
-      <div class="fx-board">
-        <section class="fx-panel">
+      <div class="fx-board" id="fxBoard">
+        <section class="fx-panel" id="fig1Panel">
           <div class="fx-panel-head"><h2 id="matrixTitle">Fig. 1 &mdash; Correlation matrix</h2></div>
           <div class="matrix-scroll">
             <table class="fx-matrix" id="matrixTable"></table>
-            <div class="fx-gv" id="gvBlock" style="display:none;">
-              <div class="gv-label">det(RC<sub>t</sub>)<sup>1/7</sup> &middot; all 7 majors, annualized</div>
-              <div class="gv-value" id="gvValue">&mdash;</div>
-              <div class="gv-pctl" id="gvPctl"></div>
-            </div>
           </div>
           <div class="fx-legend" id="matrixLegend">
             <span id="legLow">-1.00</span>
@@ -500,7 +489,6 @@ var RC_DATA = {"dates":["2009-09-28","2009-09-29","2009-09-30","2009-10-01","200
     var d = DATA.dates[state.dateIdx];
     return state.view === "corr" ? DATA.corr[d] : DATA.vol[d];
   }
-  function currentGV() { return DATA.gv[DATA.dates[state.dateIdx]]; }
   function seriesForGV() { return DATA.dates.map(function (d) { return DATA.gv[d]; }); }
   function fmtVal(v) {
     if (v === null || v === undefined || isNaN(v)) return "n/a";
@@ -625,20 +613,13 @@ var RC_DATA = {"dates":["2009-09-28","2009-09-29","2009-09-30","2009-10-01","200
     document.getElementById("datePick").value = d;
     updateTimeline();
 
-    document.getElementById("matrixTable").style.display = state.view === "gv" ? "none" : "";
-    document.getElementById("gvBlock").style.display = state.view === "gv" ? "" : "none";
+    // Normalized determinant has no matrix to show alongside Fig.2 - hide Fig.1 entirely and let
+    // Fig.2 fill the width both figures otherwise share, rather than sitting in its usual column
+    document.getElementById("fig1Panel").style.display = state.view === "gv" ? "none" : "";
+    document.getElementById("fxBoard").classList.toggle("single", state.view === "gv");
     document.getElementById("clearSel").style.display = (state.view !== "gv" && state.selected.length) ? "" : "none";
 
-    if (state.view === "gv") {
-      var gvVal = currentGV();
-      var gvPctl = (gvVal === null || gvVal === undefined || isNaN(gvVal)) ? null : percentileOf(seriesForGV(), state.dateIdx);
-      var gvCol = gvPctl === null ? cssVar("--border") : divergingColor((gvPctl - 50) / 50);
-      var gvValueEl = document.getElementById("gvValue");
-      gvValueEl.textContent = (gvVal === null || gvVal === undefined || isNaN(gvVal)) ? String.fromCharCode(8212) : fmtVal(gvVal);
-      gvValueEl.style.background = gvCol;
-      gvValueEl.style.color = gvPctl === null ? "var(--muted)" : readableTextOn(gvCol);
-      document.getElementById("gvPctl").textContent = gvPctl === null ? "n/a this day" : ("own-history percentile: p" + gvPctl);
-    } else {
+    if (state.view !== "gv") {
       var m = currentMatrix();
       var selKeys = {};
       state.selected.forEach(function (s, i) { selKeys[keyOf(s.r, s.c)] = PALETTE[i % PALETTE.length]; });
@@ -735,7 +716,7 @@ var RC_DATA = {"dates":["2009-09-28","2009-09-29","2009-09-30","2009-10-01","200
     list.forEach(function (entry) {
       entry.series = seriesForEntry(entry);
       entry.ma = movingAverage(entry.series, MA_WINDOW);
-      entry.pctl = percentileOf(entry.series, state.dateIdx);
+      entry.pctl = entry.isGV ? null : percentileOf(entry.series, state.dateIdx); // no percentiles for this view
       entry.nowVal = entry.series[state.dateIdx];
     });
 
