@@ -179,7 +179,7 @@
   .fx-legend { display: flex; align-items: center; gap: 10px; margin-top: 14px; font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
   .fx-legend .bar { flex: 1; height: 6px; background: linear-gradient(90deg, var(--diverging-neg), var(--diverging-mid), var(--diverging-pos)); }
 
-  /* single-scalar "matrix" for the Generalized variance view - a stat tile in the same slot,
+  /* single-scalar "matrix" for the Normalized determinant view - a stat tile in the same slot,
      shaded by its own-history percentile exactly like a matrix cell would be */
   .fx-gv { padding: 28px 8px 10px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
   .fx-gv .gv-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
@@ -265,7 +265,7 @@
         <div class="segmented" role="group" aria-label="Matrix view">
           <button type="button" data-view="corr" aria-pressed="true">Correlation</button>
           <button type="button" data-view="vol" aria-pressed="false">Realized (Co)Variance</button>
-          <button type="button" data-view="gv" aria-pressed="false">Generalized variance</button>
+          <button type="button" data-view="gv" aria-pressed="false">Normalized determinant</button>
         </div>
         <div class="datenav">
           <button type="button" class="step" id="prevDay" aria-label="Previous trading day">&lsaquo;</button>
@@ -330,7 +330,7 @@
           matrix's own-history percentiles and Fig. 2 ignore anything earlier.
         </p>
         <p>
-          The Generalized variance view is det(RC<sub>t</sub>)<sup>1/p</sup>, p&nbsp;=&nbsp;7, computed from the
+          The Normalized determinant view is det(RC<sub>t</sub>)<sup>1/p</sup>, p&nbsp;=&nbsp;7, computed from the
           same annualized covariance matrix as the Realized (Co)Variance view &mdash; so it's on the same
           annualized (log-return %)&sup2; scale, just collapsed to one number per day rather than 7&times;7. A
           day is n/a here only if it's already n/a somewhere in the matrix (an invalid bias-adjusted variance)
@@ -435,9 +435,9 @@ var RC_DATA = {"dates":["2009-09-28","2009-09-29","2009-09-30","2009-10-01","200
         document.getElementById("matrixTitle").textContent =
           state.view === "corr" ? "Fig. 1 — Correlation matrix" :
           state.view === "vol"  ? "Fig. 1 — Realized (co)variance matrix" :
-                                   "Fig. 1 — Generalized variance";
+                                   "Fig. 1 — Normalized determinant";
         document.getElementById("fig2Title").textContent =
-          state.view === "gv" ? "Fig. 2 — Generalized variance history" : "Fig. 2 — Cell history";
+          state.view === "gv" ? "Fig. 2 — Normalized determinant history" : "Fig. 2 — Cell history";
         render();
       });
     });
@@ -672,7 +672,7 @@ var RC_DATA = {"dates":["2009-09-28","2009-09-29","2009-09-30","2009-10-01","200
   }
 
   function activeList() {
-    // the Generalized variance view has no matrix cells to select - it's always exactly one
+    // the Normalized determinant view has no matrix cells to select - it's always exactly one
     // series, shown regardless of whatever's (still) selected on the correlation/vol views
     if (state.view === "gv") return [{ isGV: true, color: "#5A1E2A", preview: false }];
 
@@ -752,7 +752,7 @@ var RC_DATA = {"dates":["2009-09-28","2009-09-29","2009-09-30","2009-10-01","200
       var pair = document.createElement("div");
       pair.className = "pair";
       if (entry.isGV) {
-        pair.textContent = "Generalized variance (all 7 majors)";
+        pair.textContent = "Normalized determinant (all 7 majors)";
       } else {
         var isDiag = entry.r === entry.c;
         pair.innerHTML = prettyPair(DATA.symbols[entry.r]) + (isDiag ? "" : '<span class="sep">&middot;</span>' + prettyPair(DATA.symbols[entry.c]));
